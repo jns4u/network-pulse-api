@@ -15,6 +15,9 @@ from pulseapi.issues.models import(
 from pulseapi.creators.models import(
     Creator
 )
+from pulseapi.users.models import(
+    EmailUser
+)
 
 class CreatableSlugRelatedField(serializers.SlugRelatedField):
     """
@@ -45,6 +48,9 @@ class EntrySerializer(serializers.ModelSerializer):
     creators = CreatableSlugRelatedField(many=True,
                                             slug_field='name',
                                             queryset=Creator.objects)
+    # favorited_by = serializers.SlugRelatedField(many=True,
+                                                # slug_field='favorited_by',
+                                                # queryset=EmailUser.objects)
 
     class Meta:
         """

@@ -11,6 +11,7 @@ class EmailUserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
     name = serializers.CharField(max_length=1000)
     is_staff = serializers.BooleanField(default=False)
+    favorites = serializers.PrimaryKeyRelatedField(many=True)
 
     class Meta:
         """

@@ -50,6 +50,11 @@ class Entry(models.Model):
         EmailUser,
         related_name='entries',
     )
+    # favorited_by = models.ManyToManyField(
+    #     EmailUser,
+    #     related_name='favorites',
+    #     blank=True
+    # )
 
     objects = EntryQuerySet.as_manager()
 

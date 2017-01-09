@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import (BaseUserManager, AbstractBaseUser)
+# from pulseapi.entries.models import (Entry)
 
 class EmailUserManager(BaseUserManager):
     def create_user(self, name, email, password=None):
@@ -46,6 +47,11 @@ class EmailUser(AbstractBaseUser):
     # Is this user a valid Django administrator?
     is_staff = models.BooleanField(default=False)
 
+    favorites = models.ManyToManyField(
+        'entries.Entry',
+        through='UserFavorites',
+    )
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 
@@ -74,3 +80,8 @@ class EmailUser(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return True
+
+class UserFavorites(models.Model):
+    entry = models.ForeignKey('entries.Entry', on_delete=models.CASCADE, related_name='favorited_by')
+    user = models.ForeignKey(EmailUser, on_delete=models.CASCADE, related_name='favorite_entries')
+    date = models.DateField()
