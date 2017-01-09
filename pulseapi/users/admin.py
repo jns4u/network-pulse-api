@@ -2,8 +2,17 @@
 Admin setings for EmailUser app
 """
 from django.contrib import admin
-
 from .models import EmailUser
+
+
+class UserFavoritesInline(admin.TabularInline):
+    """
+    We need an inline widget before we can do anything
+    with the user/entry favorite data.
+    """
+    model = EmailUser.favorites.through
+    verbose_name = 'UserFavorites'
+
 
 class EmailUserAdmin(admin.ModelAdmin):
     """
@@ -11,6 +20,10 @@ class EmailUserAdmin(admin.ModelAdmin):
     """
     fields = ('password', 'last_login', 'email', 'name', 'entries','favorites')
     readonly_fields = ('entries','favorites')
+
+    # this allows us to create/edit/delete/etc favorites:
+    inlines = [ UserFavoritesInline ]
+
     def entries(self, instance):
         """
         Show all entries as a string of titles. In the future we should make them links.
@@ -19,13 +32,5 @@ class EmailUserAdmin(admin.ModelAdmin):
         print(instance)
         return ", ".join([str(entry) for entry in instance.entries.all()])
 
-    # def display_favorites(self, instance):
-    #     """
-    #     Show all favorite entires as a string of titles
-    #     """
-    #     print(instance)
-    #     print('favorite')
-    #     return ", ".join([str(entry) for entry in instance.entries.all()])
-    # display_favorites.short_description = 'Favs'
 
 admin.site.register(EmailUser, EmailUserAdmin)

@@ -1,7 +1,28 @@
 from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import (BaseUserManager, AbstractBaseUser)
-# from pulseapi.entries.models import (Entry)
+
+
+class UserFavorites(models.Model):
+    """
+    This class is used to link users and entries through a
+    "favorite" relation. One user can favorite many entries,
+    and one entry can have favorites from many users.
+    """
+    entry = models.ForeignKey(
+        'entries.Entry',
+        on_delete = models.CASCADE,
+        related_name = 'favorited_by'
+    )
+
+    user = models.ForeignKey(
+        EmailUser,
+        on_delete = models.CASCADE,
+        related_name = 'favorite_entries'
+    )
+
+    timestamp = models.DateTimeField()
+
 
 class EmailUserManager(BaseUserManager):
     def create_user(self, name, email, password=None):
@@ -32,6 +53,7 @@ class EmailUserManager(BaseUserManager):
         user.save()
         return user
 
+
 class EmailUser(AbstractBaseUser):
     # We treat the user's email address as their username
     email = models.CharField(
@@ -47,9 +69,13 @@ class EmailUser(AbstractBaseUser):
     # Is this user a valid Django administrator?
     is_staff = models.BooleanField(default=False)
 
+    # "user X favorited entry Y" is a many to many relation,
+    # for which we also want to know *when* a user favorited
+    # a specific entry. As such, we use a helper class that
+    # tracks this relation as well as the time it's created.
     favorites = models.ManyToManyField(
         'entries.Entry',
-        through='UserFavorites',
+        through='UserFavorites'
     )
 
     USERNAME_FIELD = 'email'
@@ -80,8 +106,3 @@ class EmailUser(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return True
-
-class UserFavorites(models.Model):
-    entry = models.ForeignKey('entries.Entry', on_delete=models.CASCADE, related_name='favorited_by')
-    user = models.ForeignKey(EmailUser, on_delete=models.CASCADE, related_name='favorite_entries')
-    date = models.DateField()
